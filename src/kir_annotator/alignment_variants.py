@@ -73,51 +73,6 @@ def call_variants(aligned_seq: str, cigar_list: List[Tuple[int, str]], wildtype_
 
     return variants
 
-def adjust_sequence_from_variants(variants: List[Tuple[int, str]], gene: Gene) -> Tuple[int, int]:
-    """
-    Identifies insertions or deletions (indels) at the beginning or end of a gene sequence,
-    shared across all alleles of the gene, and adjusts the sequence accordingly.
-
-    Args:
-        variants: A list of tuples, each containing a position (int) and an operation (str).
-        gene: An instance of the Gene class, with attributes 'wildtype' and 'mutations'.
-
-    Returns:
-        A tuple of two integers representing the adjustments at the start and end of the sequence.
-
-    Raises:
-        ValueError: If multiple start or end indels are found in the variants.
-    """
-    def is_start_indel(pos: int, op: str) -> bool:
-        """Check if the operation is a start indel."""
-        return (op.startswith("ins") or op.startswith("del")) and pos == 0
-
-    def is_end_indel(pos: int, op: str) -> bool:
-        """Check if the operation is an end indel."""
-        return (op.startswith("ins") or op.startswith("del")) and (pos == len(gene.wildtype.seq) or pos == len(gene.wildtype.seq) - len(op[3:]))
-
-    start_adjust, end_adjust = 0, 0
-    all_gene_mutation_types = [(p, op[:3]) for p, op in gene.mutations]
-
-    for pos, op in variants:
-        if is_start_indel(pos, op):
-            if start_adjust:
-                raise ValueError("Multiple start indels found in variants")
-            if (pos, op) not in gene.mutations:
-                adjust_value = len(op[3:])
-                start_adjust = adjust_value if op.startswith("ins") else -adjust_value
-
-        if is_end_indel(pos, op):
-            if end_adjust:
-                raise ValueError("Multiple end indels found in variants")
-            if (pos, op) not in gene.mutations:
-                adjust_value = len(op[3:])
-                end_adjust = -adjust_value if op.startswith("ins") else adjust_value
-
-
-    return start_adjust, end_adjust
-
-
 
 def identify_functional_variants(variants: List[Tuple[int, str]], wildtype: Allele) -> List[Tuple[int, str]]:
     """

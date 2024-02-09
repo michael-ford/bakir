@@ -1,0 +1,18 @@
+name: kir-test
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - mappy
+  - parasail-python
+  - psutil
+  - pytest
+  - pysam
+  - ipykernel
+  - biopython
+  - dill
+  - pyfastx
+  - pyyaml
+  - minimap2

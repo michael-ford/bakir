@@ -1,17 +1,22 @@
+import sys
+import os
 import pickle
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Optional
 from .common import Gene
 import argparse
 import pyfastx
 import yaml
 from collections import OrderedDict
+from yaml.loader import SafeLoader
 
-def parse_arguments() -> Tuple[argparse.Namespace]:
+
+def parse_arguments() -> argparse.Namespace:
     """
     Parse command-line arguments for the KIR annotator tool.
 
     This function sets up command-line arguments for the script, enabling users to specify the paths for the
-    assembly sequence file, the gene database file, and optionally the output path and the mapping cache path.
+    assembly sequence file, the gene database file, and optionally the output path, the mapping cache path,
+    and the path to a YAML file containing manual annotation fixes.
 
     Returns:
         argparse.Namespace: An object containing the parsed command-line arguments.
@@ -19,6 +24,8 @@ def parse_arguments() -> Tuple[argparse.Namespace]:
             - database (str): Path to the gene database file.
             - output (str, optional): Path for the output file. Defaults to None.
             - mapping_cache (str, optional): Path for the mapping cache file. Defaults to None.
+            - temp_dir (str, optional): Path for the temporary directory. Defaults to None.
+            - fixes (str, optional): Path to the YAML file containing manual annotation fixes. Defaults to None.
     """
     parser = argparse.ArgumentParser(description="KIR Annotator Tool: A tool for gene sequence analysis.")
 
@@ -29,10 +36,17 @@ def parse_arguments() -> Tuple[argparse.Namespace]:
     )
 
     parser.add_argument(
+        '-d', '--database',
+        type=str,
+        default=None,
+        help='Path to the gene database file.'
+    )
+
+    parser.add_argument(
         '-o', '--output',
         type=str,
         default=None,
-        help='Optional: Path for the output file. If not provided, a default name based on the sequence file name will be used.'
+        help='Optional: Path and prefix for the output file. If not provided, a default name based on the sequence file name will be used.'
     )
 
     parser.add_argument(
@@ -49,9 +63,14 @@ def parse_arguments() -> Tuple[argparse.Namespace]:
         help='Optional: Path for the temporary directory. If not provided, the system default temporary directory will be used.'
     )
 
+    parser.add_argument(
+        '-f', '--fixes',
+        type=str,
+        default=None,
+        help='Optional: Path to the YAML file containing manual annotation fixes. If not provided, no manual fixes will be applied.'
+    )
 
     return parser.parse_args()
-
 
 def read_sequence(file: str) -> pyfastx.Fasta:
     """
@@ -66,9 +85,21 @@ def read_sequence(file: str) -> pyfastx.Fasta:
     return pyfastx.Fasta(file)
 
 
-import sys
-import os
-import pickle
+def extract_sample_info(assembly_sequence_path: str) -> Tuple[str, str]:
+    """
+    Extracts sample name and haplotype from the assembly sequence file name.
+
+    Args:
+        assembly_sequence_path (str): The file path to the assembly sequence.
+
+    Returns:
+        Tuple[str, str]: The sample name and haplotype.
+    """
+    file_name = os.path.basename(assembly_sequence_path)
+    sample_name, haplotype = file_name.split('.')[:2]
+    return sample_name, haplotype
+
+
 
 def load_pickle(file_path):
     """
@@ -104,6 +135,28 @@ def read_database(file: str) -> Dict[str, Gene]:
     """
     
     return load_pickle(file)[0]
+
+
+def load_fixes(yaml_path: str) -> Dict:
+    """
+    Loads and caches the fixes dictionary from a YAML file.
+
+    Args:
+        yaml_path (str): The file path to the YAML file containing the fixes.
+
+    Returns:
+        Dict: The loaded dictionary of fixes.
+
+    Function Attributes:
+        cache (dict): A cache storing loaded dictionaries of fixes, keyed by their YAML file paths.
+                      This attribute is dynamically attached to the function to retain state across calls.
+    """
+    if not hasattr(load_fixes, "cache"):
+        load_fixes.cache = {}
+    if yaml_path not in load_fixes.cache:
+        with open(yaml_path, 'r') as file:
+            load_fixes.cache[yaml_path] = yaml.load(file, Loader=SafeLoader)
+    return load_fixes.cache[yaml_path]
 
 
 def summarize_output_data(data: List[Dict[str, List[Dict[str, any]]]]) -> Tuple[List[Dict], str]:

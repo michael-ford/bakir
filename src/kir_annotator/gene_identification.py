@@ -40,7 +40,9 @@ def identify_genes(mappings: List[pysam.AlignedSegment], assembly_sequence, data
         
         assembly_seq = str(assembly_sequence[mappings[0].reference_name][start:end])
 
-        updated_intervals.append((start, end, gene, gene_counts, assembly_seq, mapping_results[0].is_reverse))
+        contig_sequence = assembly_sequence[mappings[0].reference_name]
+
+        updated_intervals.append((start, end, gene, gene_counts, assembly_seq, mapping_results[0].is_reverse, contig_sequence))
     
     return updated_intervals
 

@@ -1,7 +1,7 @@
 from kir_annotator.common import fasta_from_seq
 import dill as pickle
 
-db_path = 'data/kir.pickle'
+db_path = 'data/kir_db.pickle'
 output_path = 'data/kir_db.fasta'
 
 with open(db_path, 'rb') as f:
