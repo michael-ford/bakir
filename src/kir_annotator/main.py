@@ -56,10 +56,14 @@ def main(assembly_sequence_path: str, output_path: str = None, database_path: st
 
         wildtype_sequence = database[gene].wildtype.seq
         
+        logger.info(f'Processing gene {gene} at {start}-{end} on {sample_name} {haplotype}')
+        logger.debug(f'Aligning gene sequence to wildtype sequence for {gene} at {start}-{end} on {sample_name} {haplotype}')
         poss_gene_seq, cigar_list = align_to_wildtype(poss_gene_seq, wildtype_sequence, seq_is_reversed=is_reverse)
         
+        logger.debug(f'Calling variants for {gene} at {start}-{end} on {sample_name} {haplotype}')
         variants = call_variants(poss_gene_seq, cigar_list, wildtype_sequence)
 
+        logger.debug(f'Adjusting gene sequence for {gene} at {start}-{end} on {sample_name} {haplotype}')
         new_poss_gene_seq, new_cigar_list, new_is_reverse, new_variants, new_start, new_end = adjust_gene_sequence(start, end, database[gene], is_reverse, contig_sequence, wildtype_sequence, variants)
         poss_gene_seq = new_poss_gene_seq if new_poss_gene_seq else poss_gene_seq
         cigar_list = new_cigar_list if new_cigar_list else cigar_list
@@ -68,8 +72,10 @@ def main(assembly_sequence_path: str, output_path: str = None, database_path: st
         start = new_start if new_start else start
         end = new_end if new_end else end
 
+        logger.debug(f'Identifying functional variants for {gene} at {start}-{end} on {sample_name} {haplotype}')
         functional_variants = identify_functional_variants(variants, database[gene].wildtype)
-            
+        
+        logger.debug(f'Identifying closest alleles for {gene} at {start}-{end} on {sample_name} {haplotype}')
         closest_alleles = identify_closest_allele(variants, functional_variants, database[gene])
 
         annotations.append((OrderedDict([

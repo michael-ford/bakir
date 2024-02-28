@@ -2,7 +2,9 @@ from .alignment_variants import align_to_wildtype, call_variants
 from .io_utils import load_fixes
 from typing import Tuple, List, Dict, Optional
 from .common import Gene
-import mappy
+import mappy, logging
+
+logger = logging.getLogger("kir-annotator")
 
 def apply_fixes_from_yaml(sample_name: str, haplotype: str, gene: str, start: int, end: int, contig_sequence, is_reverse: bool, yaml_path: Optional[str] = None) -> Tuple[int, int, str]:
     """
@@ -68,16 +70,22 @@ def adjust_gene_sequence(start: int,
     adjust_start, adjust_end = adjust_sequence_from_variants(variants, gene)
     
     if adjust_start or adjust_end:
-        print(f"Testing adjustment of gene sequence for gene {gene.name} at interval ({start}, {end}). Adjustments: {adjust_start}, {adjust_end}. Is reverse: {is_reverse}")
+        logger.debug(f"Testing adjustment of gene sequence for gene {gene.name} at interval ({start}, {end}). Adjustments: {adjust_start}, {adjust_end}. Is reverse: {is_reverse}")
 
+        logger.debug(f'Calculating new positions for gene {gene.name} at interval ({start}, {end})')
         new_start, new_end = calculate_new_positions(start, end, adjust_start, adjust_end, is_reverse)
+        
+        logger.debug(f'Getting adjusted sequence for gene {gene.name} at interval ({new_start}, {new_end})')
         new_poss_gene_seq = retrieve_adjusted_sequence(contig_sequence, new_start, new_end, is_reverse)
 
+        logger.debug(f'Aligning ADJUSTED gene sequence to wildtype sequence for {gene.name} at {new_start}-{new_end}')
         new_poss_gene_seq, new_cigar_list = align_to_wildtype(new_poss_gene_seq, wildtype_sequence, is_reverse)
+        
+        logger.debug(f'Calling variants for ADJUSTED {gene.name} at {new_start}-{new_end}')
         new_variants = call_variants(new_poss_gene_seq, new_cigar_list, wildtype_sequence)
 
         if size_variants(new_variants) < size_variants(variants):
-            print(f"Adjusted gene sequence for gene {gene.name} at interval ({start}, {end}). New sequence length: {len(new_poss_gene_seq)}")
+            logger.info(f"Adjusted gene sequence for gene {gene.name} at interval ({start}, {end}). New inteval: {new_start}, {new_end}.")
             return new_poss_gene_seq, new_cigar_list, is_reverse, new_variants, new_start, new_end
 
     return None, None, None, None, None, None
@@ -111,6 +119,7 @@ def adjust_sequence_from_variants(variants: List[Tuple[int, str]], gene: Gene) -
 
     for pos, op in variants:
         if is_start_indel(pos, op):
+            logger.debug(f"Found start indel at position {pos} with operation {op}")
             if start_adjust:
                 raise ValueError("Multiple start indels found in variants")
             if (pos, op) not in gene.mutations:
@@ -118,6 +127,7 @@ def adjust_sequence_from_variants(variants: List[Tuple[int, str]], gene: Gene) -
                 start_adjust = adjust_value if op.startswith("ins") else -adjust_value
 
         if is_end_indel(pos, op):
+            logger.debug(f"Found end indel at position {pos} with operation {op}")
             if end_adjust:
                 raise ValueError("Multiple end indels found in variants")
             if (pos, op) not in gene.mutations:
@@ -144,6 +154,7 @@ def retrieve_adjusted_sequence(contig_sequence: str, new_start: int, new_end: in
     if not is_reverse:
         return str(contig_sequence[new_start:new_end])
     else:
+        logger.debug(f"Reversing sequence from {new_start} to {new_end}")
         return mappy.revcomp(str(contig_sequence[new_start:new_end]))
 
 
@@ -175,10 +186,10 @@ def calculate_new_positions(start: int, end: int, adjust_start: int, adjust_end:
         Tuple[int, int]: The new start and end positions.
     """
     if not is_reverse:
-        new_start = start + adjust_start
+        new_start = max(0, start + adjust_start)
         new_end = end + adjust_end
     else:
-        new_start = start - adjust_end
+        new_start = max(0, start - adjust_end)
         new_end = end - adjust_start
     return new_start, new_end
 
