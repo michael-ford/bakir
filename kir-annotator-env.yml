@@ -1,4 +1,4 @@
-name: kir-test
+name: kir-annotator-env
 channels:
   - bioconda
   - conda-forge
