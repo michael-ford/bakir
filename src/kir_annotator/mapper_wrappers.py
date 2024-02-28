@@ -130,4 +130,4 @@ class MappingWrapper():
 class Minimap2Wrapper(MappingWrapper):
     src = 'minimap2'
     def build_command(self, src, params, query_path, target_path, output_path):
-        return ' '.join([src, params, '-a', target_path, query_path, '>', output_path])
+        return ' '.join([src, params, '-t', '6', '-a', target_path, query_path, '>', output_path])
