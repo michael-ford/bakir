@@ -1,5 +1,7 @@
 # KIR Annotator 🧬
 
+![Test Status](https://github.com/michael-ford/kir-annotator/actions/workflows/test.yml/badge.svg)
+
 `kir-annotator` is a Python tool for gene sequence analysis, specifically focusing on the KIR (Killer-cell Immunoglobulin-like Receptor) genes. It automates the process of aligning sequences, identifying genes, and annotating them with relevant information such as functional variants and closest matching alleles.
 
 ## Features 🚀
