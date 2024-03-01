@@ -16,3 +16,6 @@ dependencies:
   - pyfastx
   - pyyaml
   - minimap2
+  - sphinx
+  - sphinx_rtd_theme
+  - sphinx-argparse
