@@ -5,10 +5,11 @@ name: Python application
 
 on:
   push:
-    branches: [ "*" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "*" ]
-
+    branches: [ "master" ]
+  workflow_dispatch:
+    
 permissions:
   contents: read
 
@@ -19,13 +20,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v3
+    - uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: "3.9"
-    - name: Install dependencies
-      run: |
-        $CONDA/bin/conda env update --file kir-annotator-env.yml --name base
-    - name: Test with pytest
+        python-version: 3.9
+        mamba-version: "*"
+        environment-file: kir-annotator-env.yml
+        activate-environment: kir-annotator-env
+    - shell: bash -el {0}
+      name: Test with pytest
       run: |
         pytest
