@@ -17,16 +17,16 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        shell: bash -el {0}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: 3.9
-        mamba-version: "*"
+        use-mamba: true
         environment-file: kir-annotator-env.yml
         activate-environment: kir-annotator-env
-    - shell: bash -el {0}
-      name: Test with pytest
-      run: |
-        pytest
+    - name: Test with Pytest
+      run: pytest
