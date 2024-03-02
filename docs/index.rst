@@ -10,6 +10,15 @@ Welcome to kir-annotator's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   alignment_variants
+   annotation_utils
+   common
+   gene_identification
+   io_utils
+   main
+   mapper_wrappers
+   mapping_utils
+
 .. automodule:: kir_annotator
    :members:
    :undoc-members:

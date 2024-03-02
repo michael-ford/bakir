@@ -19,7 +19,7 @@ def parse_arguments() -> argparse.Namespace:
     and the path to a YAML file containing manual annotation fixes.
 
     Returns:
-        argparse.Namespace: An object containing the parsed command-line arguments.
+        argparse: Argparse argument that needs .parse_args() call.
             - sequence (str): Path to the assembly sequence file.
             - database (str): Path to the gene database file.
             - output (str, optional): Path for the output file. Defaults to None.
@@ -70,7 +70,7 @@ def parse_arguments() -> argparse.Namespace:
         help='Optional: Path to the YAML file containing manual annotation fixes. If not provided, no manual fixes will be applied.'
     )
 
-    return parser.parse_args()
+    return parser
 
 def read_sequence(file: str) -> pyfastx.Fasta:
     """
