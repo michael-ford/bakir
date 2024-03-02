@@ -96,11 +96,14 @@ def main(assembly_sequence_path: str, output_path: str = None, database_path: st
 
 to_fix = {('HG00741', 'paternal', 'KIR3DP1', 373978, 374305): {'end': 376362}}
 
-def run() -> None:
-    args = parse_arguments()
+def run(args) -> None:
     main(assembly_sequence_path=args.sequence, 
         mapping_cache_path=args.mapping_cache, 
         output_path=args.output, 
         database_path=args.database,
         temp_dir=args.temp_dir,
         yaml_fix_path=args.fixes)
+
+if __name__ == "__main__":
+    args = parse_arguments().parse_args()
+    run(args)
