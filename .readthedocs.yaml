@@ -10,8 +10,8 @@ build:
   os: ubuntu-22.04
   tools:
     python: mambaforge-latest
-  commands:
-    - pip install .
+  # commands:
+  #   - pip install .
 
 conda:
   environment: kir-annotator-env.yml
