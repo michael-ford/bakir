@@ -9,9 +9,8 @@ version: 2
 build:
   os: ubuntu-22.04
   tools:
-    python: "mambaforge-latest"
+    python: mambaforge-latest
       install:
-      - requirements: docs/requirements.txt
       - method: pip
         path: .
 conda:
