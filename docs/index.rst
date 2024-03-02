@@ -7,7 +7,7 @@ Welcome to kir-annotator's documentation!
 =========================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    alignment_variants
