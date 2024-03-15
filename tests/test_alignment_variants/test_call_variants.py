@@ -18,6 +18,15 @@ def test_call_variants_insertion():
     variants = call_variants(assembly_seq, cigar_list, wildtype_seq)
     assert variants == {(3, "insG")}
 
+def test_call_variants_homo_insertion():
+    assembly_seq = "AGCGGGTA"
+    wildtype_seq = "AGCTA"  # Insertion at position 3
+    cigar_list = [(3, "="), (3, "D"), (2, "=")]
+
+    variants = call_variants(assembly_seq, cigar_list, wildtype_seq)
+    assert variants == {(3, "insGGG")}
+
+
 def test_call_variants_deletion():
     assembly_seq = "AGTA"
     wildtype_seq = "AGCTA"  # Deletion at position 3
