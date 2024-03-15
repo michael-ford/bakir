@@ -96,7 +96,8 @@ def main(assembly_sequence_path: str, output_path: str = None, database_path: st
 
 to_fix = {('HG00741', 'paternal', 'KIR3DP1', 373978, 374305): {'end': 376362}}
 
-def run(args) -> None:
+def run(args=None) -> None:
+    args = parse_arguments().parse_args() if not args else args
     main(assembly_sequence_path=args.sequence, 
         mapping_cache_path=args.mapping_cache, 
         output_path=args.output, 
