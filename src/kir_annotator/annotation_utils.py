@@ -1,8 +1,9 @@
 from .alignment_variants import align_to_wildtype, call_variants
 from .io_utils import load_fixes
-from typing import Tuple, List, Dict, Optional
+from typing import Tuple, List, Dict, Optional, Any
 from .common import Gene
 import mappy, logging
+from collections import OrderedDict
 
 logger = logging.getLogger("kir-annotator")
 
@@ -193,3 +194,47 @@ def calculate_new_positions(start: int, end: int, adjust_start: int, adjust_end:
         new_end = end - adjust_start
     return new_start, new_end
 
+
+def filter_annotations(annotations: List[Tuple[OrderedDict, Any]], database, min_cov=0.5) -> List[Tuple[OrderedDict, Any]]:
+    """
+    Filters out annotations that are wholly contained within another annotation.
+
+    Args:
+        annotations (List[Tuple[OrderedDict, Any]]): A list of annotation tuples.
+
+    Returns:
+        List[Tuple[OrderedDict, Any]]: The filtered list of annotation tuples.
+    """
+    # Create a new list for the filtered annotations
+    filtered_annotations = []
+    
+    # Sort the annotations based on the 'start' position to simplify containment checks
+    sorted_annotations = sorted(annotations, key=lambda x: x[0]['start'])
+    
+    # Keep track of intervals to identify containment
+    intervals = []
+    
+    incomplete_gene_copies = []
+    for annotation in sorted_annotations:
+        current_start = annotation[0]['start']
+        current_end = annotation[0]['end']
+        is_contained = False
+        
+        # Check if current annotation is contained within any existing interval
+        for (start, end) in intervals:
+            if start <= current_start and current_end <= end:
+                is_contained = True
+                logger.info(f"Annotation {annotation[0]['gene']} at {current_start}-{current_end} is contained within another annotation and will be removed.")
+                break  # No need to check other intervals
+
+        gene_coverage = (current_end-current_start) / float(len(database[annotation[0]['gene']].wildtype.seq))
+
+        # If the annotation is not contained within any other, add it to the filtered list and update the intervals
+        if not is_contained and gene_coverage >= min_cov:
+            filtered_annotations.append(annotation)
+            intervals.append((current_start, current_end))
+        elif gene_coverage < min_cov:
+            annotation[0]['coverage'] = gene_coverage
+            incomplete_gene_copies.append(annotation[0])
+
+    return filtered_annotations, incomplete_gene_copies

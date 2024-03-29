@@ -3,7 +3,7 @@ from .mapping_utils import map_sequences
 from .gene_identification import identify_genes
 from .alignment_variants import identify_closest_allele, call_variants, align_to_wildtype, identify_functional_variants
 from .common import get_data_file_path, set_default_temp_dir
-from .annotation_utils import adjust_gene_sequence, apply_fixes_from_yaml
+from .annotation_utils import adjust_gene_sequence, apply_fixes_from_yaml, filter_annotations
 import logging
 from collections import Counter, OrderedDict
 import os
@@ -90,8 +90,9 @@ def main(assembly_sequence_path: str, output_path: str = None, database_path: st
             ('sequence', poss_gene_seq),
         ]), closest_alleles))
 
+    annotations, incomplete_gene_copies = filter_annotations(annotations, database)
 
-    write_output(annotations, output_path)
+    write_output(annotations, incomplete_gene_copies, output_path)
 
 
 to_fix = {('HG00741', 'paternal', 'KIR3DP1', 373978, 374305): {'end': 376362}}

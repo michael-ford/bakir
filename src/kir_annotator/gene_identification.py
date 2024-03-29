@@ -1,11 +1,11 @@
-
 import pysam
 import logging
 logger = logging.getLogger("kir-annotator")
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 from .common import Seq
 from .mapper_wrappers import Minimap2Wrapper
 from collections import Counter
+
 
 def identify_genes(mappings: List[pysam.AlignedSegment], assembly_sequence, database) -> List[Tuple[int, int, List[pysam.AlignedSegment]]]:
     """
@@ -17,7 +17,8 @@ def identify_genes(mappings: List[pysam.AlignedSegment], assembly_sequence, data
     Returns:
         List[Tuple[int, int, List[pysam.AlignedSegment]]]: A list of intervals, each interval is a tuple with start, end, and a list of mappings within that interval.
     """
-    intervals = make_mapping_intervals(mappings)
+
+    intervals = make_mapping_intervals(filter_mappings(mappings))
     
     updated_intervals = []
     for start, end, mappings in intervals:
@@ -27,25 +28,88 @@ def identify_genes(mappings: List[pysam.AlignedSegment], assembly_sequence, data
         if len(set(gene_counts)) > 1:
             logger.warning(f"More than 1 gene mapping for interval ({start}, {end}): {str(gene_counts)}")
 
-        gene = genes[0]
-
+        gene = call_gene(start, end, mappings, database)
+        
         # remap to interval using wildtype to fine tune the sequence location
         wildtype_sequence = database[gene].wildtype.seq
-        assembly_seq = str(assembly_sequence[mappings[0].reference_name][start:end])
+        contig_name = mappings[0].reference_name
+        assembly_seq = str(get_assembly_contig(assembly_sequence, contig_name)[start:end])
 
         mapper = Minimap2Wrapper(params=f'-x map-ont')
         mapping_results = list(mapper.map([Seq('wildtype', wildtype_sequence)], Seq('assembly', assembly_seq)))
 
         start, end = start+mapping_results[0].reference_start, start+mapping_results[0].reference_end
         
-        assembly_seq = str(assembly_sequence[mappings[0].reference_name][start:end])
+        assembly_seq = str(get_assembly_contig(assembly_sequence, contig_name)[start:end])
 
-        contig_sequence = assembly_sequence[mappings[0].reference_name]
-
+        contig_sequence = get_assembly_contig(assembly_sequence, contig_name)
+        
         updated_intervals.append((start, end, gene, gene_counts, assembly_seq, mapping_results[0].is_reverse, contig_sequence))
-    
+
     return updated_intervals
 
+def get_assembly_contig(assembly_sequence, contig_name):
+    try:
+        return assembly_sequence[contig_name]
+    except KeyError:
+        return assembly_sequence[contig_name.replace('.', '_')]
+
+
+def filter_mappings(mappings: List[pysam.AlignedSegment]) -> List[pysam.AlignedSegment]:
+    filtered_mappings = []
+    for m in mappings:
+        if 1 - (m.get_tag('NM') / m.query_alignment_length) > 0.5:
+            filtered_mappings.append(m)
+    return filtered_mappings
+
+
+def calculate_coverage(mapping: pysam.AlignedSegment, database) -> float:
+    """
+    Calculates the coverage of a mapping.
+
+    Args:
+        mapping (pysam.AlignedSegment): The mapping to calculate coverage for.
+
+    Returns:
+        float: The coverage of the mapping.
+    """
+    g, a = mapping.query_name.split('*')
+    return mapping.query_alignment_length / len(database[g].alleles[a].seq)
+
+
+def call_gene(start: int, end: int, mappings: List[pysam.AlignedSegment], database: Dict[str, Any], min_cov: float = 0.8) -> str:
+    """
+    Identifies the best gene mapping based on a set of criteria, including coverage.
+
+    Args:
+        start (int): Start position of the gene region.
+        end (int): End position of the gene region.
+        mappings (List[pysam.AlignedSegment]): List of mapping segments.
+        database (Dict[str, Any]): Database containing gene information.
+        min_cov (float): Minimum coverage threshold for valid mappings.
+
+    Returns:
+        str: The gene name of the best mapping.
+    """
+    def sort_key(m: pysam.AlignedSegment) -> Tuple[int, int]:
+        g, a = m.query_name.split('*')
+        return ((m.get_tag('NM') / m.query_alignment_length), len(database[g].alleles[a].seq) - m.query_alignment_length)
+    
+    if not [m for m in mappings if not m.is_unmapped]:
+        return None
+
+    valid_mappings = [m for m in mappings if start <= m.reference_start <= m.reference_end <= end 
+                      and calculate_coverage(m, database) >= min_cov]
+
+    if valid_mappings:
+        # Choose the best mapping from those that exceed the minimum coverage threshold
+        return sorted(valid_mappings, key=sort_key)[0].query_name.split('*')[0]
+    elif mappings:
+        # If no valid mappings, choose the one with the lowest NM tag value
+        return sorted(mappings, key=lambda x: x.get_tag('NM'))[0].query_name.split('*')[0]
+    else:
+        # No mappings provided
+        return None
 
 
 def make_mapping_intervals(mappings: List[pysam.AlignedSegment]) -> List[Tuple[int, int, List[pysam.AlignedSegment]]]:

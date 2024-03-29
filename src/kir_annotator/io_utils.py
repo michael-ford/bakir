@@ -201,8 +201,15 @@ def summarize_output_data(data: List[Dict[str, List[Dict[str, any]]]]) -> Tuple[
 
     return output_dicts, ''.join(output_tsv)
 
+def make_incomplete_gene_copy_tsv(incomplete_gene_copies: List[OrderedDict]) -> str:
+    header = "start\tend\tgene\tis_reverse\tcoverage\tsequence\n"
 
-def write_output(data: List[Dict], output_path: str) -> None:
+    return header + ''.join([
+        f"{copy['start']}\t{copy['end']}\t{copy['gene']}\t{copy['coverage']}\t{copy['is reverse']}\t{copy['sequence']}\n" 
+        for copy in incomplete_gene_copies
+    ])
+
+def write_output(data: List[Dict], incomplete_gene_copies: List[Tuple], output_path: str) -> None:
     """
     Writes the analysis results to a file.
     
@@ -218,5 +225,9 @@ def write_output(data: List[Dict], output_path: str) -> None:
 
     with open((output_path)+'.tsv', 'w') as f:
         f.write(tsv_data)
+    
+    if incomplete_gene_copies:
+        with open((output_path)+'.incomplete_gene_copies.tsv', 'w') as f:
+            f.write(make_incomplete_gene_copy_tsv(incomplete_gene_copies))
         
             

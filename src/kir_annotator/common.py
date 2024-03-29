@@ -12,7 +12,7 @@ import logging
 log_format = '%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
 
 # Configure your logger
-logging.basicConfig(level=logging.DEBUG, format=log_format)
+logging.basicConfig(level=logging.INFO, format=log_format)
 logger = logging.getLogger("kir-annotator")
 
 
@@ -41,7 +41,7 @@ def get_data_file_path(filename: str) -> Optional[str]:
     if os.path.exists(data_file_path):
         return data_file_path
     else:
-        print(f"Error: The file {filename} does not exist.")
+        logger.error(f"Error: The file {filename} does not exist.")
         return None
 
 
@@ -49,6 +49,8 @@ def get_data_file_path(filename: str) -> Optional[str]:
 class Region:
     gene: str
     name: str
+    start: int
+    end: int
     seq: str
     partial: bool = False
     pseudo: bool = False
@@ -73,6 +75,7 @@ class Allele:
     func: set
     minor: set
     mutations: set
+    keystones: set
 
     def __init__(self, gene, name, record):
         """Initialize the allele from an IMGT (kir.dat) record"""
@@ -99,6 +102,8 @@ class Allele:
                 self.regions[name] = Region(
                     gene,
                     name,
+                    int(f.location.start),
+                    int(f.location.end),
                     str(record.seq[int(f.location.start) : int(f.location.end)]),
                     "partial" in f.qualifiers,
                     "pseudo" in f.qualifiers,
@@ -108,6 +113,7 @@ class Allele:
         self.func = set()
         self.minor = set()
         self.mutations = set()
+        self.keystones = set()
 
     def parse_mutations(self):
         """Find all core mutations that modify the protein."""
@@ -353,7 +359,7 @@ def fasta_from_seq(name, seq):
             for n, s in zip(name, seq):
                 result.append('>{}\n{}'.format(n, s))
         except TypeError:
-            log.error('Please provide a iterable or string')
+            logger.error('Please provide a iterable or string')
             raise TypeError
     else:
         result = ['>{}\n{}'.format(name, seq)]
