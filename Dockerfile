@@ -1,18 +1,25 @@
 FROM continuumio/miniconda3
 
-RUN apt-get update && apt-get install -y git wget && \
-    echo "Cloning kir-annotator repository..." && \
-    git clone https://github.com/michael-ford/kir-annotator.git /kir-annotator && \
-    echo "Creating Conda environment..." && \
-    conda env create -f /kir-annotator/kir-annotator-env.yml && \
-    echo "Activating environment and installing kir-annotator..." && \
-    . /opt/conda/etc/profile.d/conda.sh && \
-    conda activate kir-annotator-env && \
-    pip install /kir-annotator
+# Set the working directory in the container
+WORKDIR /app
 
-ENV PATH /opt/conda/envs/kir-annotator-env/bin:$PATH
+# Install git
+RUN apt-get update && apt-get install -y git
 
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# Clone the repository
+RUN git clone https://github.com/michael-ford/kir-annotator.git
 
+# Create the conda environment
+RUN conda env create -f /app/kir-annotator/kir-annotator-env.yml
+
+# Initialize conda in bash shell
+RUN conda init bash
+
+# Make RUN commands use the new environment:
+SHELL ["conda", "run", "-n", "kir-annotator", "/bin/bash", "-c"]
+
+# Install kir-annotator within the conda environment
+RUN pip install /app/kir-annotator
+
+# Ensure commands run inside the conda environment
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "kir-annotator-env", "kir-annotator"]
