@@ -16,7 +16,7 @@ RUN conda env create -f /app/kir-annotator/kir-annotator-env.yml
 RUN conda init bash
 
 # Make RUN commands use the new environment:
-SHELL ["conda", "run", "-n", "kir-annotator", "/bin/bash", "-c"]
+SHELL ["conda", "run", "-n", "kir-annotator-env", "/bin/bash", "-c"]
 
 # Install kir-annotator within the conda environment
 RUN pip install /app/kir-annotator
