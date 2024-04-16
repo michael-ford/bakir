@@ -1,5 +1,5 @@
 import pytest
-from kir_annotator.gene_identification import make_mapping_intervals, process_mapping, is_overlap_or_contained, update_interval_bounds, merge_overlapping_intervals, call_gene
+from bakir.gene_identification import make_mapping_intervals, process_mapping, is_overlap_or_contained, update_interval_bounds, merge_overlapping_intervals, call_gene
 from collections import namedtuple
 
 class MockAlignedSegment:

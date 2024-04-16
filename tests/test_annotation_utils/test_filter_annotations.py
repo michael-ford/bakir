@@ -1,6 +1,6 @@
 import pytest
 from collections import OrderedDict, namedtuple
-from kir_annotator.annotation_utils import filter_annotations
+from bakir.annotation_utils import filter_annotations
 import logging
 
 # Define the namedtuple for the mock database

@@ -27,7 +27,7 @@ def parse_arguments() -> argparse.Namespace:
             - temp_dir (str, optional): Path for the temporary directory. Defaults to None.
             - fixes (str, optional): Path to the YAML file containing manual annotation fixes. Defaults to None.
     """
-    parser = argparse.ArgumentParser(description="KIR Annotator Tool: A tool for gene sequence analysis.")
+    parser = argparse.ArgumentParser(description="BAKIR: Biologically-informed Killer cell immunoglobulin-like receptor (KIR) gene annotation tool.")
 
     parser.add_argument(
         'sequence',
