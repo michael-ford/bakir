@@ -1,5 +1,5 @@
 import pytest
-from kir_annotator.alignment_variants import identify_closest_allele
+from bakir.alignment_variants import identify_closest_allele
 
 
 class MockAllele:
@@ -27,7 +27,7 @@ mock_gene = MockGene('Gene1', functional_mutations, alleles)
 for a in alleles:
     a.gene = mock_gene
 
-from kir_annotator.alignment_variants import identify_closest_allele
+from bakir.alignment_variants import identify_closest_allele
 
 def test_empty_variants():
     variants = []

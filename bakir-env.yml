@@ -1,4 +1,4 @@
-name: kir-annotator-env
+name: bakir
 channels:
   - bioconda
   - conda-forge

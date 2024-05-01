@@ -1,5 +1,5 @@
 import pytest
-from kir_annotator.alignment_variants import call_variants
+from bakir.alignment_variants import call_variants
 
 
 def test_call_variants_mismatch():

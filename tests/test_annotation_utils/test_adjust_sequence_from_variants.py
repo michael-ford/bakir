@@ -1,5 +1,5 @@
 import pytest
-from kir_annotator.annotation_utils import adjust_sequence_from_variants
+from bakir.annotation_utils import adjust_sequence_from_variants
 
 # Mock classes
 class MockWildType:

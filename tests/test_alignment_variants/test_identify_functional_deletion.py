@@ -1,6 +1,6 @@
 import pytest
 from collections import namedtuple
-from kir_annotator.alignment_variants import identify_functional_deletion
+from bakir.alignment_variants import identify_functional_deletion
 
 # Define a simple structure for regions as before
 Region = namedtuple('Region', ['name', 'is_exon', 'pseudo'])

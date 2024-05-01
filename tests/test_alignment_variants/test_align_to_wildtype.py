@@ -1,5 +1,5 @@
 import pytest
-from kir_annotator.alignment_variants import align_to_wildtype
+from bakir.alignment_variants import align_to_wildtype
 
 # Test cases
 @pytest.mark.parametrize("assembly_seq, wildtype_seq, is_reversed, expected", [

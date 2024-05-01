@@ -1,5 +1,5 @@
 import pytest
-from kir_annotator.alignment_variants import identify_exon_deletions 
+from bakir.alignment_variants import identify_exon_deletions 
 from collections import namedtuple
 
 # Mock objects and data for testing

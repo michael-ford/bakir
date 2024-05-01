@@ -1,6 +1,6 @@
 # import pytest
 # from collections import namedtuple
-# from kir_annotator.alignment_variants import normalized_jaccard_distance
+# from bakir.alignment_variants import normalized_jaccard_distance
 
 # # Create mock structures
 # Allele = namedtuple('Allele', ['mutations'])

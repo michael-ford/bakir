@@ -27,7 +27,7 @@ def parse_arguments() -> argparse.Namespace:
             - temp_dir (str, optional): Path for the temporary directory. Defaults to None.
             - fixes (str, optional): Path to the YAML file containing manual annotation fixes. Defaults to None.
     """
-    parser = argparse.ArgumentParser(description="KIR Annotator Tool: A tool for gene sequence analysis.")
+    parser = argparse.ArgumentParser(description="BAKIR: Biologically-informed Killer cell immunoglobulin-like receptor (KIR) gene annotation tool.")
 
     parser.add_argument(
         'sequence',
@@ -177,27 +177,27 @@ def summarize_output_data(data: List[Dict[str, List[Dict[str, any]]]]) -> Tuple[
         new_closest_alleles = []
 
         for allele in closest_alleles[:5]:
-            new_closest_alleles.append(OrderedDict({
-                "allele": allele.get("closest allele", ""),
-                "new mut": len(allele.get("new mut", [])),
-                "missing mut": len(allele.get("missing mut", [])),
-                "new functional mut": allele.get("new functional mut", []),
-                "missing functional mut": allele.get("missing functional mut", []),
-                "jaccard functional distance": allele.get("jaccard functional distance", 0.0),
-                "jaccard distance": allele.get("jaccard distance", 0.0),
-            }))
+            new_closest_alleles.append(OrderedDict([
+                ("allele", allele["closest allele"]),
+                ("new mut", len(allele["new mut"])),
+                ("missing mut", len(allele["missing mut"])),
+                ("new functional mut", allele["new functional mut"]),
+                ("missing functional mut", allele["missing functional mut"]),
+                ("jaccard functional distance", allele["jaccard functional distance"]),
+                ("jaccard distance", allele["jaccard distance"]),
+            ]))
 
         # Update annotation with new information
-        annotation["closest allele"] = new_closest_alleles[0]["allele"] if new_closest_alleles else None
-        annotation["new functional variants"] = closest_alleles[0]["new functional mut"] if closest_alleles else None
-        annotation["missing functional variants"] = closest_alleles[0]["missing functional mut"] if closest_alleles else None
-        annotation["new mut"] = closest_alleles[0]["new mut"] if closest_alleles else None
-        annotation["missing mut"] = closest_alleles[0]["missing mut"] if closest_alleles else None
+        annotation["closest allele"] = new_closest_alleles[0]["allele"] 
+        annotation["new functional variants"] = closest_alleles[0]["new functional mut"] 
+        annotation["missing functional variants"] = closest_alleles[0]["missing functional mut"]
+        annotation["new mut"] = closest_alleles[0]["new mut"]
+        annotation["missing mut"] = closest_alleles[0]["missing mut"]
         annotation["top alleles"] = new_closest_alleles
         output_dicts.append(annotation)
 
         # Format data for TSV
-        output_tsv.append(f"{annotation['sample']}\t{annotation['haplotype']}\t{annotation['gene']}\t{annotation['closest allele']}\t{annotation['start']}\t{annotation['end']}\t{len(closest_alleles[0].get('variants', []))}\t{len(closest_alleles[0].get('new functional variants', []))}\t{annotation['sequence']}\n")
+        output_tsv.append(f"{annotation['sample']}\t{annotation['haplotype']}\t{annotation['gene']}\t{annotation['closest allele']}\t{annotation['start']}\t{annotation['end']}\t{len(annotation['new mut'])}\t{len(annotation['new functional variants'])}\t{annotation['sequence']}\n")
 
     return output_dicts, ''.join(output_tsv)
 
