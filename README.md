@@ -1,6 +1,6 @@
 # BAKIR -  Biologically-informed Killer cell immunoglobulin-like receptor (KIR) gene annotation tool 🧬
 
-![Test Status](https://github.com/michael-ford/bakir/actions/workflows/test.yml/badge.svg) [![Documentation Status](https://readthedocs.org/projects/bakir/badge/?version=latest)](https://readthedocs.org/projects/kir-annotator/badge/?version=latest)
+![Test Status](https://github.com/michael-ford/bakir/actions/workflows/test.yml/badge.svg) [![Documentation Status](https://readthedocs.org/projects/kir-annotator/badge/?version=latest)](https://kir-annotator.readthedocs.io/en/latest/)
 
 `bakir` is a Python tool for gene sequence analysis, specifically focusing on the KIR (Killer-cell Immunoglobulin-like Receptor) genes. It automates the process of aligning sequences, identifying genes, and annotating them with relevant information such as functional variants and closest matching alleles.
 
