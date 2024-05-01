@@ -22,4 +22,4 @@ SHELL ["conda", "run", "-n", "bakir-env", "/bin/bash", "-c"]
 RUN pip install /app/bakir
 
 # Ensure commands run inside the conda environment
-ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "bakir-env", "bakir"]
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "bakir", "bakir"]
