@@ -10,7 +10,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../src'))
 
-project = 'kir-annotator'
+project = 'BAKIR'
 copyright = '2024, Michael KB Ford'
 author = 'Michael KB Ford'
 

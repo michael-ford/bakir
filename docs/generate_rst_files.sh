@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Directory containing your .py files
-SOURCE_DIR="../src/kir_annotator"
+SOURCE_DIR="../src/bakir"
 # Directory to store the generated .rst files
 DOCS_DIR="./"
 
@@ -34,7 +34,7 @@ for file in $SOURCE_DIR/*.py; do
     echo "$module_name" > "$rst_file"
     echo "=====================" >> "$rst_file"
     echo "" >> "$rst_file"
-    echo ".. automodule:: kir_annotator.$module_name" >> "$rst_file"
+    echo ".. automodule:: bakir.$module_name" >> "$rst_file"
     echo "   :members:" >> "$rst_file"
     echo "   :undoc-members:" >> "$rst_file"
     echo "   :show-inheritance:" >> "$rst_file"
