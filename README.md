@@ -15,6 +15,7 @@
 
 ## Installation 📦
 
+### Native Installation
 Clone the repository and navigate into the project directory:
 
 ```
@@ -32,8 +33,37 @@ Install the package (preferably in a virtual environment):
 pip install .
 ```
 
+### Using Docker
+To run `bakir` using Docker, you first need to pull the Docker image from Docker Hub:
+
+```
+docker pull cdslsahinalp/kir-annotator:latest
+```
+
+After pulling the image, you can run `bakir` using:
+
+``docker run -v $(pwd):/data cdslsahinalp/kir-annotator:latest [-o /data/OUTPUT] ... /data/sequence.fasta
+```
+
+Replace `$(pwd)` with the absolute path to the directory containing your data files if you are not running the command from within the data directory. This command mounts your current directory (`$(pwd)`) to `/data` inside the container.
+
+### Using Singularity
+For environments where Docker is not available, you can use Singularity to run the Docker image. First, pull the Docker image as a Singularity image:
+
+```
+singularity pull docker://cdslsahinalp/kir-annotator:latest
+```
+
+Then, run `bakir` using the Singularity image:
+
+```
+singularity exec --bind /path/to/data:/data kir-annotator_latest.sif bakir  [-o /data/OUTPUT] /data/sequence.fasta
+```
+
+As with Docker, replace `$(pwd)` with the absolute path to your data directory if necessary. This command binds your current directory to `/data` inside the Singularity container.
+
 ## Usage 🛠
-To use bakir, you need to provide the path to your assembly sequence file and the gene database file at a minimum. Additional options allow for customization of the output and other functionalities:
+To use `bakir`, you need to provide the path to your assembly sequence file and the gene database file at a minimum. Additional options allow for customization of the output and other functionalities:
 
 ```
 usage: bakir [-h] [-d DATABASE] [-o OUTPUT] [-m MAPPING_CACHE] [-t TEMP_DIR] [-f FIXES] sequence
