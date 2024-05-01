@@ -14,7 +14,7 @@ build:
   #   - pip install .
 
 conda:
-  environment: kir-annotator-env.yml
+  environment: bakir-env.yml
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
