@@ -16,7 +16,7 @@ RUN conda env create -f /app/bakir/bakir-env.yml
 RUN conda init bash
 
 # Make RUN commands use the new environment:
-SHELL ["conda", "run", "-n", "bakir-env", "/bin/bash", "-c"]
+SHELL ["conda", "run", "-n", "bakir", "/bin/bash", "-c"]
 
 # Install bakir within the conda environment
 RUN pip install /app/bakir
